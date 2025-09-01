@@ -6,6 +6,7 @@ from third_parties.linkedin import scrape_linkedin_profile
 from agents.linkedin_lookup_agent import lookup as linkedin_lookup_agent
 from agents.twitter_lookup_agent import lookup as twitter_lookup_agent
 from third_parties.twitter import scrape_user_tweets
+from output_parsers import summary_parser
 
 
 def ice_break_with(name: str):
@@ -22,14 +23,17 @@ def ice_break_with(name: str):
     2. two interesting facts about them 
 
     Use both information from twitter and Linkedin
+    \n{format_instructions}
     """
     summary_prompt_template = PromptTemplate(
-        input_variables=["information", "twitter_posts"], template=summary_template
+        input_variables=["information", "twitter_posts"], template=summary_template, partial_variables={
+            "format_instructions": summary_parser.get_format_instructions()
+        }
     )
 
     llm = ChatGroq(model="openai/gpt-oss-20b", temperature=0)
 
-    chain = summary_prompt_template | llm
+    chain = summary_prompt_template | llm | summary_parser
 
     res = chain.invoke(input={"information": linkedin_data, "twitter_posts": tweets})
 
