@@ -27,3 +27,5 @@ logs/
 .vscode/
 
 api.python.langchain.com/
+
+.hintrc
